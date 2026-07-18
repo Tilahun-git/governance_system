@@ -1,7 +1,6 @@
 package com.internship.governanceservice.mapper;
 
 import com.internship.governanceservice.dto.request.CreatePolicyRequest;
-import com.internship.governanceservice.dto.request.UpdatePolicyRequest;
 import com.internship.governanceservice.dto.response.PolicyResponse;
 import com.internship.governanceservice.entity.Policy;
 import com.internship.governanceservice.enums.PolicyStatus;
@@ -29,13 +28,6 @@ public class PolicyMapper {
                 .createdBy(policy.getCreatedBy())
                 .createdAt(policy.getCreatedAt())
                 .build();
-    }
-    public void updateEntity(Policy policy,
-                             UpdatePolicyRequest request){
-
-        policy.setTitle(request.getTitle());
-        policy.setDescription(request.getDescription());
-
     }
 
 }

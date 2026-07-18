@@ -1,7 +1,6 @@
 package com.internship.governanceservice.controller;
 
 import com.internship.governanceservice.dto.request.CreatePolicyRequest;
-import com.internship.governanceservice.dto.request.UpdatePolicyRequest;
 import com.internship.governanceservice.dto.response.PolicyResponse;
 import com.internship.governanceservice.service.PolicyService;
 import jakarta.validation.Valid;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -36,19 +34,22 @@ public class PolicyController {
 
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePolicy(@PathVariable Long id) {
-        policyService.deletePolicy(id);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<PolicyResponse> submitPolicy(@PathVariable Long id) {
 
+        return ResponseEntity.ok(policyService.submitPolicy(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PolicyResponse> updatePolicy(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdatePolicyRequest request) {
-
-        return ResponseEntity.ok(policyService.updatePolicy(id, request));
-
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<PolicyResponse> approvePolicy(@PathVariable Long id) {
+        return ResponseEntity.ok(policyService.approvePolicy(id));
     }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<PolicyResponse> rejectPolicy(@PathVariable Long id) {
+
+        return ResponseEntity.ok(policyService.rejectPolicy(id));
+    }
+
+
 }
