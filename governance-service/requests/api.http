@@ -1,0 +1,29 @@
+### Create Policy
+POST http://localhost:8080/api/policies
+Content-Type: application/json
+
+{
+  "title":"Policy One",
+  "description":"Description",
+  "createdBy":"admin"
+}
+
+###
+
+GET http://localhost:8080/api/policies
+
+###
+
+GET http://localhost:8080/api/policies/1
+
+###
+
+POST http://localhost:8080/api/policies/1/submit
+
+###
+
+POST http://localhost:8080/api/policies/1/approve
+
+###
+
+POST http://localhost:8080/api/policies/2/reject

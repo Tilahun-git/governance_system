@@ -3,13 +3,17 @@ package com.internship.governanceservice.service.impl;
 import com.internship.governanceservice.dto.request.CreatePolicyRequest;
 import com.internship.governanceservice.dto.response.PolicyResponse;
 import com.internship.governanceservice.entity.Policy;
+import com.internship.governanceservice.enums.EventType;
 import com.internship.governanceservice.enums.PolicyStatus;
+import com.internship.governanceservice.event.PolicyEvent;
+import com.internship.governanceservice.kafka.EventPublisher;
 import com.internship.governanceservice.mapper.PolicyMapper;
 import com.internship.governanceservice.repository.PolicyRepository;
 import com.internship.governanceservice.service.PolicyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,15 +22,19 @@ public class PolicyServiceImpl implements PolicyService {
 
     private final PolicyRepository policyRepository;
     private final PolicyMapper policyMapper;
+    private final EventPublisher eventPublisher;
 
     @Override
     public PolicyResponse createPolicy(CreatePolicyRequest request) {
 
        Policy policy = policyMapper.mapToPolicyEntity(request);
-       Policy savedPolicy = policyRepository.save(policy);
+       Policy createdPolicy = policyRepository.save(policy);
 
        //kafka will be later implemented here
-       return  policyMapper.mapToPolicyResponseDto(savedPolicy);
+
+        publishPolicyEvent(createdPolicy,EventType.POLICY_CREATED);
+
+       return  policyMapper.mapToPolicyResponseDto(createdPolicy);
 
     }
 
@@ -55,10 +63,12 @@ public class PolicyServiceImpl implements PolicyService {
         }
 
         policy.setStatus(PolicyStatus.PENDING_APPROVAL);
-        Policy updatedPolicy = policyRepository.save(policy);
+        Policy submittedPolicy = policyRepository.save(policy);
 
         // kafka will be implemented here later
-        return policyMapper.mapToPolicyResponseDto(updatedPolicy);
+        publishPolicyEvent(submittedPolicy,EventType.POLICY_SUBMITTED);
+
+        return policyMapper.mapToPolicyResponseDto(submittedPolicy);
     }
 
     @Override
@@ -68,10 +78,13 @@ public class PolicyServiceImpl implements PolicyService {
             throw  new RuntimeException("Only PENDING_APPROVAL policies can be approved");
         }
         policy.setStatus(PolicyStatus.APPROVED);
-        Policy updatedPolicy = policyRepository.save(policy);
+        Policy approvedPolicy = policyRepository.save(policy);
 
         //policy approved kafka will be implemented here later
-        return policyMapper.mapToPolicyResponseDto(updatedPolicy);
+
+        publishPolicyEvent(approvedPolicy,EventType.POLICY_APPROVED);
+
+        return policyMapper.mapToPolicyResponseDto(approvedPolicy);
     }
 
     @Override
@@ -85,11 +98,12 @@ public class PolicyServiceImpl implements PolicyService {
 
         policy.setStatus(PolicyStatus.REJECTED);
 
-        Policy updatedPolicy = policyRepository.save(policy);
+        Policy rejectedPolicy = policyRepository.save(policy);
 
         // policy-rejected Kafka event will be implemented later
+        publishPolicyEvent(rejectedPolicy,EventType.POLICY_REJECTED);
 
-        return policyMapper.mapToPolicyResponseDto(updatedPolicy);
+        return policyMapper.mapToPolicyResponseDto(rejectedPolicy);
     }
 
 
@@ -101,6 +115,17 @@ public class PolicyServiceImpl implements PolicyService {
 
         return policyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Policy not found with id: " + id));
+    }
+
+    private void publishPolicyEvent(Policy policy, EventType eventType) {
+        PolicyEvent event = PolicyEvent.builder()
+                .eventType(eventType)
+                .policyId(policy.getId())
+                .actor(policy.getCreatedBy())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        eventPublisher.publish(event);
     }
 
 }
