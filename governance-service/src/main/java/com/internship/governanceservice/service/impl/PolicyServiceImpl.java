@@ -26,12 +26,10 @@ public class PolicyServiceImpl implements PolicyService {
 
     @Override
     public PolicyResponse createPolicy(CreatePolicyRequest request) {
-
        Policy policy = policyMapper.mapToPolicyEntity(request);
        Policy createdPolicy = policyRepository.save(policy);
 
-       //kafka will be later implemented here
-
+        // policy-created Kafka event publish
         publishPolicyEvent(createdPolicy,EventType.POLICY_CREATED);
 
        return  policyMapper.mapToPolicyResponseDto(createdPolicy);
@@ -61,11 +59,10 @@ public class PolicyServiceImpl implements PolicyService {
         if(policy.getStatus() != PolicyStatus.DRAFT){
             throw  new RuntimeException("Only DRAFT policies can be submitted");
         }
-
         policy.setStatus(PolicyStatus.PENDING_APPROVAL);
         Policy submittedPolicy = policyRepository.save(policy);
 
-        // kafka will be implemented here later
+        // policy-submitted Kafka event publish
         publishPolicyEvent(submittedPolicy,EventType.POLICY_SUBMITTED);
 
         return policyMapper.mapToPolicyResponseDto(submittedPolicy);
@@ -80,8 +77,7 @@ public class PolicyServiceImpl implements PolicyService {
         policy.setStatus(PolicyStatus.APPROVED);
         Policy approvedPolicy = policyRepository.save(policy);
 
-        //policy approved kafka will be implemented here later
-
+        // policy-approved Kafka event publish
         publishPolicyEvent(approvedPolicy,EventType.POLICY_APPROVED);
 
         return policyMapper.mapToPolicyResponseDto(approvedPolicy);
@@ -91,16 +87,13 @@ public class PolicyServiceImpl implements PolicyService {
     public PolicyResponse rejectPolicy(Long id) {
 
         Policy policy = getPolicyByIdOrThrow(id);
-
         if (policy.getStatus() != PolicyStatus.PENDING_APPROVAL) {
             throw new RuntimeException("Only PENDING_APPROVAL policies can be rejected.");
         }
-
         policy.setStatus(PolicyStatus.REJECTED);
-
         Policy rejectedPolicy = policyRepository.save(policy);
 
-        // policy-rejected Kafka event will be implemented later
+        // policy-rejected Kafka event publish
         publishPolicyEvent(rejectedPolicy,EventType.POLICY_REJECTED);
 
         return policyMapper.mapToPolicyResponseDto(rejectedPolicy);
@@ -117,6 +110,7 @@ public class PolicyServiceImpl implements PolicyService {
                 .orElseThrow(() -> new RuntimeException("Policy not found with id: " + id));
     }
 
+    // Helper method to publish policy event
     private void publishPolicyEvent(Policy policy, EventType eventType) {
         PolicyEvent event = PolicyEvent.builder()
                 .eventType(eventType)
