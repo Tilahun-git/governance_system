@@ -1,29 +1,34 @@
+@host = localhost
+@port = 8081
+@baseUrl = http://{{host}}:{{port}}
+
+
 ### Create Policy
-POST http://localhost:8080/api/policies
+POST {{baseUrl}}/api/policies
 Content-Type: application/json
 
 {
-  "title":"Policy One",
-  "description":"Description",
-  "createdBy":"admin"
+  "title":"Policy 5",
+  "description":"Description 5",
+  "createdBy":"manager"
 }
 
 ###
 
-GET http://localhost:8080/api/policies
+GET {{baseUrl}}/api/policies
 
 ###
 
-GET http://localhost:8080/api/policies/1
+GET {{baseUrl}}/api/policies/1
 
 ###
 
-POST http://localhost:8080/api/policies/1/submit
+POST{{baseUrl}}/api/policies/6/submit
 
 ###
 
-POST http://localhost:8080/api/policies/1/approve
+POST {{baseUrl}}/api/policies/6/reject
 
 ###
 
-POST http://localhost:8080/api/policies/2/reject
+POST {{baseUrl}}/api/policies/5/approve

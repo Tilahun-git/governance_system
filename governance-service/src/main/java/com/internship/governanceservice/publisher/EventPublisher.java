@@ -1,4 +1,4 @@
-package com.internship.governanceservice.kafka;
+package com.internship.governanceservice.publisher;
 
 import com.internship.governanceservice.event.PolicyEvent;
 
