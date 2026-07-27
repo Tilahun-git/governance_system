@@ -10,8 +10,7 @@ import org.springframework.kafka.core.ProducerFactory;
 public class KafkaProducerConfig {
 
     @Bean
-    public KafkaTemplate<String, PolicyEvent> kafkaTemplate(
-            ProducerFactory<String, PolicyEvent> producerFactory) {
+    public KafkaTemplate<String, PolicyEvent> kafkaTemplate(ProducerFactory<String, PolicyEvent> producerFactory) {
 
         return new KafkaTemplate<>(producerFactory);
 

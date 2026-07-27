@@ -8,9 +8,11 @@ POST {{baseUrl}}/api/policies
 Content-Type: application/json
 
 {
-  "title":"Policy 5",
-  "description":"Description 5",
-  "createdBy":"manager"
+
+  "title": "Data Protection Policygggggggggggggggg",
+  "description": "Rules for protecting company customer data",
+  "createdBy": "admin"
+
 }
 
 ###
@@ -23,7 +25,7 @@ GET {{baseUrl}}/api/policies/1
 
 ###
 
-POST{{baseUrl}}/api/policies/6/submit
+POST{{baseUrl}}/api/policies/7/submit
 
 ###
 

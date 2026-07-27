@@ -4,6 +4,8 @@ import com.internship.governanceservice.config.KafkaTopics;
 import com.internship.governanceservice.event.PolicyEvent;
 import com.internship.governanceservice.publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,15 +14,18 @@ import org.springframework.stereotype.Component;
 public class KafkaEventPublisher implements EventPublisher {
 
     private final KafkaTemplate <String, PolicyEvent> kafkaTemplate;
+    private static final Logger logger =
+            LoggerFactory.getLogger(KafkaEventPublisher.class);
 
     @Override
     public void publish(PolicyEvent event) {
+
         kafkaTemplate.send(KafkaTopics.POLICY_EVENTS,event);
 
+        System.out.println("PUBLISHED POLICY EVENT IS : " + event.toString());
 
-        System.out.println("=================================");
-        System.out.println(event);
-        System.out.println("=================================");
+        logger.info("Publishing event to Kafka topic '{}': {}", KafkaTopics.POLICY_EVENTS, event);
+
 
     }
 

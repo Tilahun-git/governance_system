@@ -8,7 +8,7 @@ public class GovernanceServiceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GovernanceServiceApplication.class, args);
-        System.out.println("App started");
+        System.out.println("Governance service started");
     }
 
 }

@@ -29,8 +29,8 @@ public class PolicyServiceImpl implements PolicyService {
        Policy policy = policyMapper.mapToPolicyEntity(request);
        Policy createdPolicy = policyRepository.save(policy);
 
-        // policy-created Kafka event publish
-        publishPolicyEvent(createdPolicy,EventType.POLICY_CREATED);
+        // policy-created  event published to kafka broker
+        createPolicyEvent(createdPolicy,EventType.POLICY_CREATED);
 
        return  policyMapper.mapToPolicyResponseDto(createdPolicy);
 
@@ -62,8 +62,8 @@ public class PolicyServiceImpl implements PolicyService {
         policy.setStatus(PolicyStatus.PENDING_APPROVAL);
         Policy submittedPolicy = policyRepository.save(policy);
 
-        // policy-submitted Kafka event publish
-        publishPolicyEvent(submittedPolicy,EventType.POLICY_SUBMITTED);
+        // policy-submitted  event is published to kafka
+        createPolicyEvent(submittedPolicy,EventType.POLICY_SUBMITTED);
 
         return policyMapper.mapToPolicyResponseDto(submittedPolicy);
     }
@@ -77,8 +77,8 @@ public class PolicyServiceImpl implements PolicyService {
         policy.setStatus(PolicyStatus.APPROVED);
         Policy approvedPolicy = policyRepository.save(policy);
 
-        // policy-approved Kafka event publish
-        publishPolicyEvent(approvedPolicy,EventType.POLICY_APPROVED);
+        // policy-approved  event publish to kafka
+        createPolicyEvent(approvedPolicy,EventType.POLICY_APPROVED);
 
         return policyMapper.mapToPolicyResponseDto(approvedPolicy);
     }
@@ -93,8 +93,8 @@ public class PolicyServiceImpl implements PolicyService {
         policy.setStatus(PolicyStatus.REJECTED);
         Policy rejectedPolicy = policyRepository.save(policy);
 
-        // policy-rejected Kafka event publish
-        publishPolicyEvent(rejectedPolicy,EventType.POLICY_REJECTED);
+        // policy-rejected  event published to kafka
+        createPolicyEvent(rejectedPolicy,EventType.POLICY_REJECTED);
 
         return policyMapper.mapToPolicyResponseDto(rejectedPolicy);
     }
@@ -111,7 +111,7 @@ public class PolicyServiceImpl implements PolicyService {
     }
 
     // Helper method to publish policy event
-    private void publishPolicyEvent(Policy policy, EventType eventType) {
+    private void createPolicyEvent(Policy policy, EventType eventType) {
         PolicyEvent event = PolicyEvent.builder()
                 .eventType(eventType)
                 .policyId(policy.getId())
