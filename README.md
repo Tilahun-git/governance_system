@@ -125,7 +125,7 @@ It tracks:
 ## Build Tool
 
 - Maven
-# 🚀 Instructions to Run the System
+#  Instructions to Run the System
 
 ## Prerequisites
 
