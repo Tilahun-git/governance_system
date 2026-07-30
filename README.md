@@ -335,3 +335,34 @@ Save Audit Record in audit_db
    │
    ▼
 Response Returned to Client
+
+
+## 📖 API Documentation
+
+The Governance Policy Management System uses **Swagger UI (OpenAPI 3)** to provide interactive API documentation.
+
+### Features
+
+- Interactive documentation for all REST endpoints
+- View request and response models
+- Test APIs directly from the browser
+- Automatic documentation generated from Spring Boot controllers
+- Displays validation constraints and response codes
+
+### Access Swagger UI
+
+Start the Governance Service and open:
+
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
+### OpenAPI Specification
+
+The generated OpenAPI specification is available at:
+
+```
+http://localhost:8080/v3/api-docs
+```
+
+This JSON document can be imported into tools such as Postman or other API clients that support the OpenAPI specification.
