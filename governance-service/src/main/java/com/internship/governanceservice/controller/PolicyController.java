@@ -21,7 +21,7 @@ public class PolicyController {
     public ResponseEntity <List<PolicyResponse>> getAllPolicies() {
         return  ResponseEntity.ok().body(policyService.getAllPolicies());
     }
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<PolicyResponse> createPolicy(@Valid @RequestBody CreatePolicyRequest request){
         PolicyResponse savedPolicy = policyService.createPolicy(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPolicy);
