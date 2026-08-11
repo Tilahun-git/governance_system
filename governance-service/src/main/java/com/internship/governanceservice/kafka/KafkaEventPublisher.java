@@ -14,17 +14,30 @@ import org.springframework.stereotype.Component;
 public class KafkaEventPublisher implements EventPublisher {
 
     private final KafkaTemplate <String, PolicyEvent> kafkaTemplate;
-    private static final Logger logger =
-            LoggerFactory.getLogger(KafkaEventPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaEventPublisher.class);
 
     @Override
     public void publish(PolicyEvent event) {
 
-        kafkaTemplate.send(KafkaTopics.POLICY_EVENTS,event);
+        kafkaTemplate.send(KafkaTopics.POLICY_EVENTS_TOPIC,event).whenComplete((result,exception)->{
+            if (exception == null) {
 
-        System.out.println("PUBLISHED POLICY EVENT IS : " + event.toString());
+                logger.info(
+                        "Event successfully published to topic '{}', partition={}, offset={}",
+                        result.getRecordMetadata().topic(),
+                        result.getRecordMetadata().partition(),
+                        result.getRecordMetadata().offset()
+                );
 
-        logger.info("Publishing event to Kafka topic '{}': {}", KafkaTopics.POLICY_EVENTS, event);
+            } else {
+
+                logger.error(
+                        "Failed to publish event to Kafka topic '{}'",
+                        KafkaTopics.POLICY_EVENTS_TOPIC,
+                        exception
+                );
+            }
+        });
 
 
     }

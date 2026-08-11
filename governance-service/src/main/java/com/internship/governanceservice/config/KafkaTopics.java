@@ -5,5 +5,5 @@ public final class KafkaTopics {
     private KafkaTopics() {
     }
 
-    public static final String POLICY_EVENTS = "policy-events";
+    public static final String POLICY_EVENTS_TOPIC= "policy-events";
 }

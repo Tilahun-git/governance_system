@@ -4,15 +4,15 @@
 
 
 ### Create Policy
-POST {{baseUrl}}/api/policies
+POST {{baseUrl}}/api/policies/create
 Content-Type: application/json
 
 {
 
 
-  "title": "Data Security Policy",
-  "description": "Policy for protecting university dataaaaaaaaaaa",
-  "createdBy": "admin"
+  "title": "Data Security Policy today moved to docker",
+  "description": "Policy for protecting university to docker continerize",
+  "createdBy": "tilahun"
 
 
 }
@@ -27,7 +27,7 @@ GET {{baseUrl}}/api/policies/1
 
 ###
 
-POST{{baseUrl}}/api/policies/7/submit
+POST{{baseUrl}}/api/policies/59/submit
 
 ###
 
@@ -35,4 +35,4 @@ POST {{baseUrl}}/api/policies/6/reject
 
 ###
 
-POST {{baseUrl}}/api/policies/5/approve
+POST {{baseUrl}}/api/policies/58/approve

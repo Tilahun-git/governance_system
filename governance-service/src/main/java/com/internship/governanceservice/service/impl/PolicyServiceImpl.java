@@ -32,7 +32,7 @@ public class PolicyServiceImpl implements PolicyService {
         // policy-created  event published to kafka broker
         createPolicyEvent(createdPolicy,EventType.POLICY_CREATED);
 
-       return  policyMapper.mapToPolicyResponseDto(createdPolicy);
+        return  policyMapper.mapToPolicyResponseDto(createdPolicy);
 
     }
 

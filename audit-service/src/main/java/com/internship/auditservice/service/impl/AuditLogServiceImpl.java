@@ -19,7 +19,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     @Override
     public void saveAudit(PolicyEvent event) {
 
-        AuditLog log = AuditLog.builder()
+        AuditLog audilog = AuditLog.builder()
 
                 .policyId(event.getPolicyId())
 
@@ -31,9 +31,9 @@ public class AuditLogServiceImpl implements AuditLogService {
 
                 .build();
 
-        repository.save(log);
+        repository.save(audilog);
 
-        System.out.println("Audit saved: " + log);
+        System.out.println("Audit saved: " + audilog);
 
     }
 }

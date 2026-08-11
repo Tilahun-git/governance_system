@@ -9,13 +9,13 @@ import org.mapstruct.Mapping;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring",
-        imports = {LocalDateTime.class, PolicyStatus.class})
+@Mapper(componentModel = "spring", imports = {LocalDateTime.class, PolicyStatus.class})
 public interface PolicyMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", expression = "java(LocalDateTime.now())")
     @Mapping(target = "status", expression = "java(PolicyStatus.DRAFT)")
+
     Policy mapToPolicyEntity(CreatePolicyRequest request);
 
     PolicyResponse mapToPolicyResponseDto(Policy policy);

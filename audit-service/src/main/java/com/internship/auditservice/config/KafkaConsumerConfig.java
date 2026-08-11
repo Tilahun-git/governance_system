@@ -32,8 +32,6 @@ public class KafkaConsumerConfig {
 
         deserializer.setUseTypeHeaders(false);
 
-
-
         Map<String, Object> props = new HashMap<>();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -47,11 +45,8 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, PolicyEvent>
-    kafkaListenerContainerFactory(
-            ConsumerFactory<String, PolicyEvent> consumerFactory
-    ) {
-        ConcurrentKafkaListenerContainerFactory<String, PolicyEvent> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+    kafkaListenerContainerFactory(ConsumerFactory<String, PolicyEvent> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, PolicyEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory);
 

@@ -19,8 +19,7 @@ public class PolicyEventConsumerKafka {
 
 
 
-    @KafkaListener(topics = "policy-events", groupId = "audit-service"
-    )
+    @KafkaListener(topics = "policy-events", groupId = "audit-service")
     public void consume(PolicyEvent event){
 
         System.out.println("Received Kafka Event: " + event);

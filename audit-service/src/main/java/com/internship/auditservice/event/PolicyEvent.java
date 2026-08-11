@@ -14,13 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PolicyEvent {
 
-
     private EventType eventType;
-
     private Long policyId;
-
     private String actor;
-
     private LocalDateTime timestamp;
 
 }
