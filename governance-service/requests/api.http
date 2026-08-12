@@ -11,7 +11,7 @@ Content-Type: application/json
 
 
   "title": "Data Security Policy today moved to docker",
-  "description": "Policy for protecting university to docker continerize",
+  "description": "Policy for protecting university to docker after continerization",
   "createdBy": "tilahun"
 
 
