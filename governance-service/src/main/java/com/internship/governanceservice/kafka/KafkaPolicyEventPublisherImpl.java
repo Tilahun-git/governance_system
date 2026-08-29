@@ -2,7 +2,7 @@ package com.internship.governanceservice.kafka;
 
 import com.internship.governanceservice.config.KafkaTopics;
 import com.internship.governanceservice.event.PolicyEvent;
-import com.internship.governanceservice.publisher.EventPublisher;
+import com.internship.governanceservice.publisher.KafkaPolicyEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,35 +11,22 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class KafkaEventPublisher implements EventPublisher {
+public class KafkaPolicyEventPublisherImpl implements KafkaPolicyEventPublisher {
 
     private final KafkaTemplate <String, PolicyEvent> kafkaTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(KafkaEventPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(KafkaPolicyEventPublisherImpl.class);
 
     @Override
     public void publish(PolicyEvent event) {
-
         kafkaTemplate.send(KafkaTopics.POLICY_EVENTS_TOPIC,event).whenComplete((result,exception)->{
             if (exception == null) {
-
-                logger.info(
-                        "Event successfully published to topic '{}', partition={}, offset={}",
+                logger.info("Event successfully published to topic '{}', partition={}, offset={}",
                         result.getRecordMetadata().topic(),
                         result.getRecordMetadata().partition(),
-                        result.getRecordMetadata().offset()
-                );
-
+                        result.getRecordMetadata().offset() );
             } else {
-
-                logger.error(
-                        "Failed to publish event to Kafka topic '{}'",
-                        KafkaTopics.POLICY_EVENTS_TOPIC,
-                        exception
-                );
+                logger.error("Failed to publish event to Kafka topic '{}'",KafkaTopics.POLICY_EVENTS_TOPIC, exception);
             }
         });
-
-
     }
-
 }

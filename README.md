@@ -1,57 +1,16 @@
 # Governance Policy Management System
 
-A Spring Boot-based Governance Policy Management System that manages policy creation, submission, approval, and rejection workflows.
+A Spring Boot-based Governance Policy Management System for managing the lifecycle of governance policies, including creation, submission, approval, and rejection.
 
-The system follows a **microservice-oriented and event-driven architecture**, using **Apache Kafka** for asynchronous communication between services. The application and its infrastructure are containerized using **Docker Compose**.
+The system uses a **microservice-oriented, event-driven architecture**. The Governance Service manages policies and publishes policy events to **Apache Kafka**. The Audit Service consumes these events and stores them as audit records in PostgreSQL.
 
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Architecture](#architecture)
-   - [High-Level Architecture](#high-level-architecture)
-   - [Architecture Explanation](#architecture-explanation)
-      - [Governance Service](#governance-service)
-      - [Apache Kafka](#apache-kafka)
-      - [Audit Service](#audit-service)
-      - [PostgreSQL](#postgresql)
-      - [Kafka UI](#kafka-ui)
-- [Technology Stack](#technology-stack)
-- [How to Run the Application](#how-to-run-the-application)
-   - [Prerequisites](#prerequisites)
-   - [1. Clone the Repository](#1-clone-the-repository)
-   - [2. Start Docker Desktop](#2-start-docker-desktop)
-   - [3. Start the Complete Application](#3-start-the-complete-application)
-   - [4. Verify the Containers](#4-verify-the-containers)
-   - [5. Access the Services](#5-access-the-services)
-   - [6. Stop the Application](#6-stop-the-application)
-   - [7. Rebuild After Code Changes](#7-rebuild-after-code-changes)
-
----
-
-## Project Overview
-
-The Governance Policy Management System is a backend application designed to manage organizational policies throughout their lifecycle.
-
-The system allows users to:
-
-- Create new policies
-- View existing policies
-- Retrieve policies by ID
-- Submit policies for approval
-- Approve policies
-- Reject policies
-
-The application follows an event-driven architecture where policy-related actions generate events that are published to Apache Kafka and consumed by the Audit Service.
+The complete system is containerized using **Docker Compose**, allowing the entire application and its infrastructure to be started with a single command.
 
 ---
 
 ## Architecture
 
-The system is designed using a **microservice-oriented architecture** with **asynchronous communication through Apache Kafka**.
-
-### High-Level Architecture
+The system consists of two Spring Boot microservices and supporting infrastructure.
 
 ```text
                          Client
@@ -63,109 +22,133 @@ The system is designed using a **microservice-oriented architecture** with **asy
                 |       Port: 8081      |
                 +-----------+-----------+
                             |
-                            | Publish Policy Events
+                            | Policy Events
                             v
                     +---------------+
-                    |  Apache Kafka  |
-                    |   Port: 9092   |
+                    | Apache Kafka  |
+                    |   Port: 9092  |
                     +-------+-------+
                             |
-                            | Consume Policy Events
+                            | Consume Events
                             v
                 +-----------------------+
                 |     Audit Service     |
                 |       Port: 8082      |
                 +-----------+-----------+
                             |
-                            | Store Audit Records
+                            | Audit Records
                             v
                     +---------------+
                     |   PostgreSQL   |
                     +---------------+
 
-                    Kafka UI: 8080
+                       Kafka UI
+                       Port: 8080
 ```
 
-### Architecture Explanation
+### Governance Service
 
-#### Governance Service
+The Governance Service is responsible for the policy business operations.
 
-The **Governance Service** is the main business service responsible for managing policies.
+It:
 
-It handles:
+- Creates policies
+- Retrieves policies
+- Submits policies for approval
+- Approves policies
+- Rejects policies
+- Stores policy information in `governance_db`
+- Publishes policy lifecycle events to Kafka
 
-- Policy creation
-- Policy retrieval
-- Policy lifecycle management
-- Policy status changes
-- Persistence of policy data
-- Publishing policy events to Kafka
+### Apache Kafka
 
-The Governance Service stores policy data in the `governance_db` PostgreSQL database.
+Apache Kafka is used as the event communication layer between the services.
 
-#### Apache Kafka
+When an important policy action occurs, the Governance Service publishes a `PolicyEvent` to the Kafka topic:
 
-**Apache Kafka** acts as the asynchronous messaging and event communication layer between the services.
+```text
+policy-events
+```
 
-The Governance Service publishes policy events to Kafka, and the Audit Service consumes these events.
+The Governance Service does not directly call the Audit Service. Instead:
 
-This allows the services to communicate asynchronously without requiring direct HTTP communication between them.
+```text
+Governance Service
+        |
+        | publish event
+        v
+      Kafka
+        |
+        | consume event
+        v
+  Audit Service
+```
 
-#### Audit Service
+This provides asynchronous communication between the services.
 
-The **Audit Service** is responsible for consuming policy events from Kafka and recording audit information.
+### Audit Service
 
-It stores audit records in the `audit_db` PostgreSQL database.
+The Audit Service listens to the `policy-events` Kafka topic.
 
-This keeps the audit functionality independent from the main Governance Service.
+When it receives a policy event, it processes the event and stores the corresponding audit record in the `audit_db` PostgreSQL database.
 
-#### PostgreSQL
+Its purpose is to provide traceability of governance actions by maintaining a history of policy-related activities.
 
-**PostgreSQL** is used for persistent data storage.
+### PostgreSQL
 
-The application uses separate databases for the two services:
+PostgreSQL provides persistent storage for both services.
 
-- `governance_db` — stores governance and policy data
-- `audit_db` — stores audit data
+The system uses separate databases:
 
-#### Kafka UI
+```text
+governance_db
+    └── Governance Service data
 
-**Kafka UI** provides a web-based interface for monitoring Apache Kafka and inspecting Kafka topics and messages.
+audit_db
+    └── Audit Service data
+```
+
+### Kafka UI
+
+Kafka UI provides a web interface for viewing and monitoring Kafka topics, partitions, consumers, and messages.
 
 ---
 
 ## Technology Stack
 
-- **Java 21**
-- **Spring Boot**
-- **Spring Data JPA**
-- **Spring Kafka**
-- **PostgreSQL**
-- **Apache Kafka**
-- **Docker**
-- **Docker Compose**
-- **Maven**
-- **Kafka UI**
-- **Git**
+- Java 21
+- Spring Boot
+- Spring Data JPA
+- Spring Kafka
+- PostgreSQL
+- Apache Kafka
+- Docker
+- Docker Compose
+- Maven
+- Kafka UI
 
 ---
 
-# How to Run the Application
+# Running the Application with Docker
 
-The complete application runs inside Docker containers using Docker Compose.
+The application is configured to run completely inside Docker.
 
-You **do not need to manually run the Spring Boot services from IntelliJ IDEA** when using the Docker setup.
+The reviewer does **not** need to manually start Kafka, PostgreSQL, Governance Service, or Audit Service.
 
-### Prerequisites
+Docker Compose starts all required components.
 
-Make sure the following are installed:
+## Prerequisites
 
-- **Docker Desktop**
-- **Git**
+Install:
+
+- Docker Desktop
+- Git
+
+Make sure Docker Desktop is running before starting the application.
 
 ---
 
-### 1. Clone the Repository
+## 1. Clone the Repository
 
 Clone the repository:
 
@@ -173,49 +156,47 @@ Clone the repository:
 git clone https://github.com/Tilahun-git/governance_system.git
 ```
 
-Navigate to the project directory:
+Enter the project directory:
 
 ```bash
 cd governance_system
 ```
 
-Make sure you are in the directory containing the `docker-compose.yml` file.
+Make sure the directory contains:
 
----
-
-### 2. Start Docker Desktop
-
-Open **Docker Desktop** and make sure the Docker Engine is running.
-
-Verify Docker:
-
-```bash
-docker version
+```text
+docker-compose.yml
 ```
 
 ---
 
-### 3. Start the Complete Application
+## 2. Start the Application
 
-From the project root directory, run:
+Run:
 
 ```bash
 docker compose up -d
 ```
 
-This starts all required containers:
+Docker Compose will start:
 
-- Governance Service
-- Audit Service
-- Apache Kafka
-- Kafka UI
-- PostgreSQL
+```text
+PostgreSQL
+     ↓
+Apache Kafka
+     ↓
+Governance Service
+     ↓
+Audit Service
+     ↓
+Kafka UI
+```
 
-Docker Compose also creates the Docker network that allows the containers to communicate with each other.
+The Spring Boot services are built from their Dockerfiles and started as containers.
 
 ---
 
-### 4. Verify the Containers
+## 3. Verify the Containers
 
 Run:
 
@@ -223,98 +204,264 @@ Run:
 docker compose ps
 ```
 
-You should see containers similar to:
+You should see the following services running:
 
 ```text
-audit-service
 governance-service
+audit-service
 kafka
 kafka-ui
 postgres
 ```
 
-If a container fails to start, check its logs using:
+All containers should show a status similar to:
 
-```bash
-docker compose logs <service-name>
+```text
+Up
 ```
 
-For example:
+---
+
+## 4. Check Application Logs
+
+If necessary, check the logs of the Governance Service:
 
 ```bash
 docker compose logs governance-service
 ```
 
-or:
+Check the Audit Service:
 
 ```bash
 docker compose logs audit-service
 ```
 
+To follow the logs continuously:
+
+```bash
+docker compose logs -f governance-service
+```
+
+or:
+
+```bash
+docker compose logs -f audit-service
+```
+
 ---
 
-### 5. Access the Services
+# Access the Application
 
-The Docker Compose configuration maps the container ports to ports on the host machine.
+After the containers have started successfully:
 
-Therefore, the services can be accessed from your browser or API client using `localhost`.
-
-#### Governance Service
+### Governance Service
 
 ```text
 http://localhost:8081
 ```
 
-#### Audit Service
+### Governance Service Swagger UI
+
+```text
+http://localhost:8081/swagger-ui/index.html
+```
+
+### Audit Service
 
 ```text
 http://localhost:8082
 ```
 
-#### Kafka UI
+### Audit Service Swagger UI
+
+```text
+http://localhost:8082/swagger-ui/index.html
+```
+
+### Kafka UI
 
 ```text
 http://localhost:8080
 ```
 
-> **Note:** `localhost` is used when accessing the services from the host machine.
->
-> Inside the Docker network, containers communicate using their Docker service names.
+---
+
+# Docker Service Communication
+
+When services communicate **inside Docker**, they use Docker service names instead of `localhost`.
 
 For example:
 
 ```text
 Governance Service → kafka:9092
 Audit Service      → kafka:9092
+Governance Service → postgres:5432
+Audit Service      → postgres:5432
 ```
 
-The external ports are exposed to the host as follows:
+`localhost` refers to the current container itself, so it should not be used for communication between Docker containers.
 
-| Service | Container Port | Host Port |
-|---|---:|---:|
-| Governance Service | 8081 | 8081 |
-| Audit Service | 8082 | 8082 |
-| Kafka | 9092 | 9092 |
-| Kafka UI | 8080 | 8080 |
-| PostgreSQL | 5432 | 5433 |
+From the reviewer's browser, however, the exposed ports are accessed through `localhost`:
+
+```text
+localhost:8081  → Governance Service
+localhost:8082  → Audit Service
+localhost:8080  → Kafka UI
+localhost:9092  → Kafka
+localhost:5432  → PostgreSQL
+```
 
 ---
 
-### 6. Stop the Application
+# Event Flow
 
-To stop the application:
+A typical policy operation works as follows:
+
+```text
+1. Client
+      |
+      | HTTP request
+      v
+2. Governance Service
+      |
+      | Save/update policy
+      v
+3. PostgreSQL
+      |
+      | Policy event
+      v
+4. Kafka
+      |
+      | policy-events topic
+      v
+5. Audit Service
+      |
+      | Save audit record
+      v
+6. PostgreSQL
+      |
+      v
+   audit_db
+```
+
+For example, when a policy is created:
+
+```text
+Client
+  ↓
+POST /api/policies
+  ↓
+Governance Service
+  ↓
+Save Policy
+  ↓
+Publish POLICY_CREATED event
+  ↓
+Kafka: policy-events
+  ↓
+Audit Service consumes event
+  ↓
+Save audit record
+```
+
+The same event-driven mechanism is used for other policy lifecycle actions such as:
+
+```text
+POLICY_CREATED
+POLICY_SUBMITTED
+POLICY_APPROVED
+POLICY_REJECTED
+```
+
+---
+
+# Rebuild After Code Changes
+
+If source code is changed, rebuild the Docker images:
+
+```bash
+docker compose up -d --build
+```
+
+This rebuilds the affected Spring Boot services and starts them again.
+
+---
+
+# Stop the Application
+
+To stop and remove the containers:
 
 ```bash
 docker compose down
 ```
 
-This stops and removes the containers and Docker network created by Docker Compose.
+The PostgreSQL Docker volume is preserved.
 
-Docker volumes are preserved unless they are explicitly removed.
+To remove the containers **and** the stored PostgreSQL data:
+
+```bash
+docker compose down -v
+```
+
+> **Warning:** `docker compose down -v` deletes the PostgreSQL volume and therefore removes the persisted database data.
 
 ---
-The application will then be available at:
 
-- Governance Service: `http://localhost:8081`
-- Audit Service: `http://localhost:8082`
-- Kafka UI: `http://localhost:8080`
+# Project Structure
+
+```text
+governance_system/
+│
+├── governance-service/
+│   ├── src/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── audit-service/
+│   ├── src/
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── docker-compose.yml
+│
+└── README.md
+```
+
+---
+
+## Quick Start
+
+For a reviewer who already has Docker Desktop and Git installed:
+
+```bash
+git clone https://github.com/Tilahun-git/governance_system.git
+
+cd governance_system
+
+docker compose up -d --build
+```
+
+Then verify:
+
+```bash
+docker compose ps
+```
+
+Access:
+
+```text
+Governance Swagger:
+http://localhost:8081/swagger-ui/index.html
+
+Audit Swagger:
+http://localhost:8082/swagger-ui/index.html
+
+Kafka UI:
+http://localhost:8080
+```
+
+To stop:
+
+```bash
+docker compose down
+```

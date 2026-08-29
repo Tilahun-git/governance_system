@@ -24,7 +24,10 @@ public class PolicyController {
     @PostMapping("/create")
     public ResponseEntity<PolicyResponse> createPolicy(@Valid @RequestBody CreatePolicyRequest request){
         PolicyResponse savedPolicy = policyService.createPolicy(request);
+        System.out.println("created policy successfully");
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPolicy);
+
     }
 
     @GetMapping("/{id}")

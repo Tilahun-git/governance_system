@@ -7,7 +7,7 @@ import com.internship.governanceservice.enums.EventType;
 import com.internship.governanceservice.enums.PolicyStatus;
 import com.internship.governanceservice.event.PolicyEvent;
 import com.internship.governanceservice.mapper.PolicyMapper;
-import com.internship.governanceservice.publisher.EventPublisher;
+import com.internship.governanceservice.publisher.KafkaPolicyEventPublisher;
 import com.internship.governanceservice.repository.PolicyRepository;
 import com.internship.governanceservice.service.PolicyService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class PolicyServiceImpl implements PolicyService {
 
     private final PolicyRepository policyRepository;
     private final PolicyMapper policyMapper;
-    private final EventPublisher eventPublisher;
+    private final KafkaPolicyEventPublisher eventPublisher;
 
     @Override
     public PolicyResponse createPolicy(CreatePolicyRequest request) {
@@ -46,12 +46,10 @@ public class PolicyServiceImpl implements PolicyService {
 
     }
 
-
     @Override
     public PolicyResponse getPolicyById(Long id) {
         return policyMapper.mapToPolicyResponseDto(getPolicyByIdOrThrow(id));
     }
-
     @Override
     public PolicyResponse submitPolicy(Long id) {
 
@@ -98,9 +96,6 @@ public class PolicyServiceImpl implements PolicyService {
 
         return policyMapper.mapToPolicyResponseDto(rejectedPolicy);
     }
-
-
-
 
 
      // Helper method to avoid repeating findById logic.

@@ -6,4 +6,5 @@ public final class KafkaTopics {
     }
 
     public static final String POLICY_EVENTS_TOPIC= "policy-events";
+
 }

@@ -2,37 +2,45 @@
 @port = 8081
 @baseUrl = http://{{host}}:{{port}}
 
-
 ### Create Policy
+
+
+
 POST {{baseUrl}}/api/policies/create
 Content-Type: application/json
 
 {
-
-
-  "title": "Data Security Policy today moved to docker",
-  "description": "Policy for protecting university to docker after continerization",
-  "createdBy": "tilahun"
-
-
+  "title": "Data Security Policy loading fixed docker running",
+  "description": "Policy for protecting university after containerization successfully",
+  "createdBy": "heven"
 }
 
 ###
+
+### Get All Policies
 
 GET {{baseUrl}}/api/policies
 
 ###
 
-GET {{baseUrl}}/api/policies/1
+### Get Policy By ID
+
+GET {{baseUrl}}/api/policies/19
 
 ###
 
-POST{{baseUrl}}/api/policies/59/submit
+### Submit Policy
+
+POST {{baseUrl}}/api/policies/18/submit
 
 ###
 
-POST {{baseUrl}}/api/policies/6/reject
+### Reject Policy
+
+POST {{baseUrl}}/api/policies/17/reject
 
 ###
 
-POST {{baseUrl}}/api/policies/58/approve
+### Approve Policy
+
+POST {{baseUrl}}/api/policies/18/approve

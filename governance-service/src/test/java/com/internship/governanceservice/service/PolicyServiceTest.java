@@ -6,7 +6,7 @@ import com.internship.governanceservice.entity.Policy;
 import com.internship.governanceservice.enums.PolicyStatus;
 import com.internship.governanceservice.event.PolicyEvent;
 import com.internship.governanceservice.mapper.PolicyMapper;
-import com.internship.governanceservice.publisher.EventPublisher;
+import com.internship.governanceservice.publisher.KafkaPolicyEventPublisher;
 import com.internship.governanceservice.repository.PolicyRepository;
 import com.internship.governanceservice.service.impl.PolicyServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,14 +22,14 @@ class PolicyServiceTest {
 
     private PolicyRepository policyRepository;
     private PolicyMapper policyMapper;
-    private EventPublisher eventPublisher;
+    private KafkaPolicyEventPublisher eventPublisher;
     private PolicyService policyService;
 
     @BeforeEach
     void setUp() {
         policyRepository = mock(PolicyRepository.class);
         policyMapper = mock(PolicyMapper.class);
-        eventPublisher = mock(EventPublisher.class);
+        eventPublisher = mock(KafkaPolicyEventPublisher.class);
 
         policyService = new PolicyServiceImpl(
                 policyRepository,
