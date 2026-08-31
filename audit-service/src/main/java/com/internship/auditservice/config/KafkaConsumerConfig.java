@@ -18,7 +18,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, PolicyEvent> consumerFactory(
-            @Value("${spring.kafka.consumer.bootstrap-servers}") String bootstrapServers,
+            @Value("${spring.kafka.consumer.bootstrap-servers}")  String bootstrapServers,
             @Value("${spring.kafka.consumer.group-id}") String groupId) {
 
         JsonDeserializer<PolicyEvent> deserializer = new JsonDeserializer<>(PolicyEvent.class);

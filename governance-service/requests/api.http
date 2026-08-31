@@ -10,9 +10,9 @@ POST {{baseUrl}}/api/policies/create
 Content-Type: application/json
 
 {
-  "title": "Data Security Policy loading fixed docker running",
+  "title": "Data Security Policy loading fixed docker running now",
   "description": "Policy for protecting university after containerization successfully",
-  "createdBy": "heven"
+  "createdBy": "helen"
 }
 
 ###
