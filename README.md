@@ -131,24 +131,30 @@ Kafka UI provides a web interface for viewing and monitoring Kafka topics, parti
 
 # Running the Application with Docker
 
-The application is configured to run completely inside Docker.
+The entire Governance Policy Management System can be run using Docker and Docker Compose.
 
-The reviewer does **not** need to manually start Kafka, PostgreSQL, Governance Service, or Audit Service.
+The reviewer does **not** need to install or configure IntelliJ IDEA, Java, Maven, PostgreSQL, or Kafka separately.
 
-Docker Compose starts all required components.
+Docker will build and run the Spring Boot services, PostgreSQL, Kafka, and Kafka UI as containers.
+
+---
 
 ## Prerequisites
 
 Install:
 
-- Docker Desktop
-- Git
+- [Git](https://git-scm.com/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 Make sure Docker Desktop is running before starting the application.
 
+> **Note:** IntelliJ IDEA is not required to run or test this project. The application is built and started inside Docker containers.
+>
+> **Optional:** IntelliJ Database, pgAdmin, DBeaver, or another database client can be used only if you want to inspect the PostgreSQL databases and tables directly.
+
 ---
 
-## 1. Clone the Repository
+# 1. Clone the Repository
 
 Clone the repository:
 
@@ -162,49 +168,124 @@ Enter the project directory:
 cd governance_system
 ```
 
-Make sure the directory contains:
+Make sure you are inside the project directory that contains:
 
 ```text
 docker-compose.yml
 ```
 
----
-
-## 2. Start the Application
-
-Run:
-
-```bash
-docker compose up -d
-```
-
-Docker Compose will start:
+The project structure should look similar to:
 
 ```text
-PostgreSQL
-     ↓
-Apache Kafka
-     ↓
-Governance Service
-     ↓
-Audit Service
-     ↓
-Kafka UI
+governance_system/
+├── governance-service/
+├── audit-service/
+├── postgres/
+├── docker-compose.yml
+├── .env.example
+└── README.md
 ```
-
-The Spring Boot services are built from their Dockerfiles and started as containers.
 
 ---
 
-## 3. Verify the Containers
+# 2. Configure Environment Variables
 
-Run:
+The project provides an `.env.example` file containing the required environment variables.
+
+Create your own `.env` file from `.env.example`.
+
+### Windows PowerShell
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### Linux/macOS
+
+```bash
+cp .env.example .env
+```
+
+You should now have:
+
+```text
+.env.example
+.env
+```
+
+The `.env.example` file is committed to Git so that reviewers know which variables are required.
+
+---
+
+# 3. Start the Complete Application
+
+For the first startup, run:
+
+```bash
+docker compose up -d --build
+```
+
+
+> Build the required application images, create the containers, and start the complete application in the background.
+
+---
+
+# 4. Services Started by Docker Compose
+
+Docker Compose starts the following components:
+
+```text
+┌───────────────────────────────────────────────┐
+│                Docker Desktop                 │
+│                                               │
+│  ┌──────────────┐                             │
+│  │ PostgreSQL   │                             │
+│  │    :5432     │                             │
+│  └──────────────┘                             │
+│                                               │
+│  ┌──────────────┐      ┌───────────────┐      │
+│  │    Kafka     │◄─────│   Kafka UI    │      │
+│  │    :9092     │      │     :8080     │      │
+│  └──────┬───────┘      └───────────────┘      │
+│         │                                     │
+│         │                                     │
+│  ┌──────▼──────────┐                          │
+│  │    Governance  │                          │
+│  │     Service    │                          │
+│  │      :8081     │                          │
+│  └──────┬─────────┘                          │
+│         │                                     │
+│         │ PolicyEvent                         │
+│         ▼                                     │
+│  ┌───────────────┐                            │
+│  │ Audit Service │                            │
+│  │     :8082     │                            │
+│  └───────────────┘                            │
+│                                               │
+└───────────────────────────────────────────────┘
+```
+
+The containers are:
+
+```text
+postgres
+kafka
+kafka-ui
+governance-service
+audit-service
+```
+
+---
+
+# 5. Verify the Containers
+
+After starting the application, run:
 
 ```bash
 docker compose ps
 ```
 
-You should see the following services running:
+You should see:
 
 ```text
 governance-service
@@ -214,254 +295,708 @@ kafka-ui
 postgres
 ```
 
-All containers should show a status similar to:
+The services should normally show a status similar to:
 
 ```text
 Up
 ```
 
+If a service is not running, check its logs.
+
 ---
 
-## 4. Check Application Logs
+# 6. Check Application Logs
 
-If necessary, check the logs of the Governance Service:
+### Governance Service
 
 ```bash
 docker compose logs governance-service
 ```
 
-Check the Audit Service:
+### Audit Service
 
 ```bash
 docker compose logs audit-service
 ```
 
-To follow the logs continuously:
+### Kafka
+
+```bash
+docker compose logs kafka
+```
+
+### PostgreSQL
+
+```bash
+docker compose logs postgres
+```
+
+### Kafka UI
+
+```bash
+docker compose logs kafka-ui
+```
+
+---
+
+## Follow Logs in Real Time
+
+To continuously watch Governance Service logs:
 
 ```bash
 docker compose logs -f governance-service
 ```
 
-or:
+To watch Audit Service logs:
 
 ```bash
 docker compose logs -f audit-service
 ```
 
+To watch Kafka logs:
+
+```bash
+docker compose logs -f kafka
+```
+
+Press:
+
+```text
+Ctrl + C
+```
+
+to stop following the logs.
+
+> `Ctrl + C` only stops displaying the logs. It does not stop the container.
+
 ---
 
-# Access the Application
+# 7. Access the Application
 
-After the containers have started successfully:
+After the containers have started successfully, the services can be accessed from the reviewer's computer using `localhost`.
 
-### Governance Service
+## Governance Service
+
+The Governance Service runs on:
 
 ```text
 http://localhost:8081
 ```
 
-### Governance Service Swagger UI
+
+To interact with the Governance API, use Swagger UI:
 
 ```text
 http://localhost:8081/swagger-ui/index.html
 ```
 
-### Audit Service
+---
+
+## Audit Service
+
+The Audit Service runs on:
 
 ```text
 http://localhost:8082
 ```
 
-### Audit Service Swagger UI
+
+To interact with the Audit API, use Swagger UI:
 
 ```text
 http://localhost:8082/swagger-ui/index.html
 ```
 
-### Kafka UI
+---
+
+## Kafka UI
+
+Kafka UI is a separate web application used to visually inspect and manage the Kafka cluster.
+
+Open:
 
 ```text
 http://localhost:8080
 ```
 
+Kafka UI can be used to inspect:
+
+- Kafka brokers
+- Topics
+- Partitions
+- Messages
+- Consumer groups
+- Consumer information
+
 ---
 
-# Docker Service Communication
 
-When services communicate **inside Docker**, they use Docker service names instead of `localhost`.
+### Kafka UI
+
+Kafka UI is a web application that provides a graphical interface for Kafka.
+
+Kafka UI listens for browser requests on:
+
+```text
+8080
+```
+
+Therefore:
+
+```text
+http://localhost:8080
+```
+
+opens Kafka UI.
+
+
+# 9. Docker Service Communication
+
+When services communicate with each other **inside Docker**, they use Docker service names instead of `localhost`.
 
 For example:
 
 ```text
 Governance Service → kafka:9092
 Audit Service      → kafka:9092
+Kafka UI           → kafka:9092
+
 Governance Service → postgres:5432
 Audit Service      → postgres:5432
 ```
 
-`localhost` refers to the current container itself, so it should not be used for communication between Docker containers.
-
-From the reviewer's browser, however, the exposed ports are accessed through `localhost`:
+Docker provides internal DNS, so the service name:
 
 ```text
-localhost:8081  → Governance Service
-localhost:8082  → Audit Service
-localhost:8080  → Kafka UI
-localhost:9092  → Kafka
-localhost:5432  → PostgreSQL
+kafka
 ```
+
+resolves to the Kafka container, and:
+
+```text
+postgres
+```
+
+resolves to the PostgreSQL container.
 
 ---
 
-# Event Flow
 
-A typical policy operation works as follows:
+# 10. PostgreSQL Databases
 
-```text
-1. Client
-      |
-      | HTTP request
-      v
-2. Governance Service
-      |
-      | Save/update policy
-      v
-3. PostgreSQL
-      |
-      | Policy event
-      v
-4. Kafka
-      |
-      | policy-events topic
-      v
-5. Audit Service
-      |
-      | Save audit record
-      v
-6. PostgreSQL
-      |
-      v
-   audit_db
-```
-
-For example, when a policy is created:
+The PostgreSQL container creates the following databases:
 
 ```text
-Client
-  ↓
-POST /api/policies
-  ↓
-Governance Service
-  ↓
-Save Policy
-  ↓
-Publish POLICY_CREATED event
-  ↓
-Kafka: policy-events
-  ↓
-Audit Service consumes event
-  ↓
-Save audit record
+PostgreSQL
+│
+├── governance_db
+│
+└── audit_db
 ```
 
-The same event-driven mechanism is used for other policy lifecycle actions such as:
+The databases are created automatically using:
 
 ```text
-POLICY_CREATED
-POLICY_SUBMITTED
-POLICY_APPROVED
-POLICY_REJECTED
+postgres/init.sql
 ```
+
+The Governance Service uses:
+
+```text
+governance_db
+```
+
+The Audit Service uses:
+
+```text
+audit_db
+```
+
+Spring Boot/JPA then creates or updates the required tables.
 
 ---
 
-# Rebuild After Code Changes
+# 11. PostgreSQL Initialization
 
-If source code is changed, rebuild the Docker images:
+The file:
 
-```bash
-docker compose up -d --build
+```text
+postgres/init.sql
 ```
 
-This rebuilds the affected Spring Boot services and starts them again.
+is executed when PostgreSQL initializes a new data directory.
 
----
+For example:
 
-# Stop the Application
-
-To stop and remove the containers:
-
-```bash
-docker compose down
+```sql
+CREATE DATABASE governance_db;
+CREATE DATABASE audit_db;
 ```
 
-The PostgreSQL Docker volume is preserved.
+Important:
 
-To remove the containers **and** the stored PostgreSQL data:
+> PostgreSQL initialization scripts run only when the database data directory is initialized for the first time.
+
+If the PostgreSQL Docker volume already exists, changing `init.sql` will not cause it to run again.
+
+If you need to completely recreate the databases, run:
 
 ```bash
 docker compose down -v
 ```
 
-> **Warning:** `docker compose down -v` deletes the PostgreSQL volume and therefore removes the persisted database data.
-
----
-
-# Project Structure
-
-```text
-governance_system/
-│
-├── governance-service/
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── audit-service/
-│   ├── src/
-│   ├── Dockerfile
-│   └── pom.xml
-│
-├── docker-compose.yml
-│
-└── README.md
-```
-
----
-
-## Quick Start
-
-For a reviewer who already has Docker Desktop and Git installed:
+Then:
 
 ```bash
-git clone https://github.com/Tilahun-git/governance_system.git
-
-cd governance_system
-
 docker compose up -d --build
 ```
 
-Then verify:
+> **Warning:** `docker compose down -v` deletes the PostgreSQL Docker volume and therefore deletes the stored database data.
+
+---
+
+# 13. Test the Governance → Kafka → Audit Flow
+
+## Step 1 — Open Governance Swagger
+
+Open:
+
+```text
+http://localhost:8081/swagger-ui/index.html
+```
+
+Use the available policy endpoints to create or modify a policy.
+
+For example:
+
+```text
+POST /api/policies
+```
+
+When the policy is successfully created, the Governance Service publishes a:
+
+```text
+POLICY_CREATED
+```
+
+event to:
+
+```text
+policy-events
+```
+
+---
+
+## Step 2 — Check Kafka UI
+
+Open:
+
+```text
+http://localhost:8080
+```
+
+Go to:
+
+```text
+Topics
+    ↓
+policy-events
+```
+
+You should be able to see the published Kafka messages.
+
+The event may contain information such as:
+
+```json
+{
+  "policyId": 1,
+  "eventType": "POLICY_CREATED",
+  "actor": "Tilahun",
+  "timestamp": "2026-09-02T..."
+}
+```
+
+---
+
+## Step 3 — Audit Service Consumes the Event
+
+The Audit Service listens to:
+
+```text
+policy-events
+```
+
+When Kafka delivers the event:
+
+```text
+Kafka
+   |
+   | PolicyEvent
+   v
+Audit Service
+```
+
+the Audit Service saves an audit record into:
+
+```text
+audit_db
+```
+
+---
+
+## Step 4 — Check the Audit Service
+
+Open:
+
+```text
+http://localhost:8082/swagger-ui/index.html
+```
+
+Use the audit endpoint to retrieve the audit history.
+
+For example:
+
+```text
+GET /api/audit/policies/{id}
+```
+
+You should see the corresponding audit record.
+
+This confirms that the complete event-driven flow is working:
+
+```text
+Governance
+    ↓
+Kafka
+    ↓
+Audit
+    ↓
+audit_db
+```
+
+---
+
+# 15. Start an Individual Service
+
+You do not always need to start the entire application.
+
+To start only the Governance Service:
+
+```bash
+docker compose up -d governance-service
+```
+
+To start only the Audit Service:
+
+```bash
+docker compose up -d audit-service
+```
+
+To start Kafka:
+
+```bash
+docker compose up -d kafka
+```
+
+To start Kafka UI:
+
+```bash
+docker compose up -d kafka-ui
+```
+
+To start PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+If a service has dependencies defined using `depends_on`, Docker Compose may also start those dependencies.
+
+For example:
+
+```bash
+docker compose up -d governance-service
+```
+
+may also start:
+
+```text
+postgres
+kafka
+governance-service
+```
+
+---
+
+# 16. Stop an Individual Service
+
+To stop only the Governance Service:
+
+```bash
+docker compose stop governance-service
+```
+
+To stop only the Audit Service:
+
+```bash
+docker compose stop audit-service
+```
+
+To stop Kafka:
+
+```bash
+docker compose stop kafka
+```
+
+To stop Kafka UI:
+
+```bash
+docker compose stop kafka-ui
+```
+
+To stop PostgreSQL:
+
+```bash
+docker compose stop postgres
+```
+
+The containers are stopped but not removed.
+
+---
+
+# 17. Start a Previously Stopped Service
+
+If a service was stopped using:
+
+```bash
+docker compose stop audit-service
+```
+
+start it again using:
+
+```bash
+docker compose start audit-service
+```
+
+For Governance Service:
+
+```bash
+docker compose start governance-service
+```
+
+For Kafka:
+
+```bash
+docker compose start kafka
+```
+
+For PostgreSQL:
+
+```bash
+docker compose start postgres
+```
+
+---
+
+# 18. Restart an Individual Service
+
+To restart Governance Service:
+
+```bash
+docker compose restart governance-service
+```
+
+To restart Audit Service:
+
+```bash
+docker compose restart audit-service
+```
+
+To restart Kafka:
+
+```bash
+docker compose restart kafka
+```
+
+To restart PostgreSQL:
+
+```bash
+docker compose restart postgres
+```
+
+To restart Kafka UI:
+
+```bash
+docker compose restart kafka-ui
+```
+
+A restart does not rebuild the Docker image.
+
+---
+
+# 19. Rebuild After Code Changes
+
+If you change Java source code or another file that is copied into a Docker image, rebuild the affected service.
+
+For example, after changing Governance Service:
+
+```bash
+docker compose up -d --build governance-service
+```
+
+After changing Audit Service:
+
+```bash
+docker compose up -d --build audit-service
+```
+
+If both services were changed:
+
+```bash
+docker compose up -d --build governance-service audit-service
+```
+
+To rebuild everything:
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+# 20. Rebuild Without Docker Cache
+
+Normally Docker reuses cached build layers.
+
+If you need to perform a completely fresh image build:
+
+```bash
+docker compose build --no-cache governance-service
+```
+
+Then start the service:
+
+```bash
+docker compose up -d governance-service
+```
+
+For the Audit Service:
+
+```bash
+docker compose build --no-cache audit-service
+```
+
+Then:
+
+```bash
+docker compose up -d audit-service
+```
+
+> `--no-cache` is normally not required. Use it when you suspect Docker's build cache is causing a problem.
+
+---
+
+# 21. Stop the Entire Application
+
+To stop all project containers:
+
+```bash
+docker compose stop
+```
+
+This stops the containers but does not remove them.
+
+You can start them again using:
+
+```bash
+docker compose start
+```
+
+---
+
+# 22. Stop and Remove the Containers
+
+To stop and remove all project containers:
+
+```bash
+docker compose down
+```
+
+This removes:
+
+- Application containers
+- Kafka container
+- Kafka UI container
+- PostgreSQL container
+- Docker Compose network
+
+The PostgreSQL named volume is preserved, so database data remains available.
+
+To start the application again:
+
+```bash
+docker compose up -d
+```
+
+---
+
+# 23. Completely Reset the Application
+
+If you want to remove the containers **and** the PostgreSQL Docker volume:
+
+```bash
+docker compose down -v
+```
+
+Then start everything again:
+
+```bash
+docker compose up -d --build
+```
+
+This creates a fresh PostgreSQL data directory and runs:
+
+```text
+postgres/init.sql
+```
+
+again.
+
+> **WARNING:** `docker compose down -v` permanently removes the PostgreSQL Docker volume and therefore deletes the stored database data.
+
+Use this command only when you intentionally want a fresh database.
+
+---
+
+# 24. Useful Docker Commands
+
+### Show project containers
 
 ```bash
 docker compose ps
 ```
 
-Access:
-
-```text
-Governance Swagger:
-http://localhost:8081/swagger-ui/index.html
-
-Audit Swagger:
-http://localhost:8082/swagger-ui/index.html
-
-Kafka UI:
-http://localhost:8080
-```
-
-To stop:
+### Show all Docker containers
 
 ```bash
-docker compose down
+docker ps -a
 ```
+
+### Show Docker images
+
+```bash
+docker images
+```
+
+### Show Docker volumes
+
+```bash
+docker volume ls
+```
+
+### Show all project logs
+
+```bash
+docker compose logs -f
+```
+
