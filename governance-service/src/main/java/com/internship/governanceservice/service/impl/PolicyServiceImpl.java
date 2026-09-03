@@ -6,6 +6,8 @@ import com.internship.governanceservice.entity.Policy;
 import com.internship.governanceservice.enums.EventType;
 import com.internship.governanceservice.enums.PolicyStatus;
 import com.internship.governanceservice.event.PolicyEvent;
+import com.internship.governanceservice.exception.InvalidPolicyStateException;
+import com.internship.governanceservice.exception.PolicyNotFoundException;
 import com.internship.governanceservice.mapper.PolicyMapper;
 import com.internship.governanceservice.publisher.KafkaPolicyEventPublisher;
 import com.internship.governanceservice.repository.PolicyRepository;
@@ -55,7 +57,9 @@ public class PolicyServiceImpl implements PolicyService {
 
         Policy policy = getPolicyByIdOrThrow(id);
         if(policy.getStatus() != PolicyStatus.DRAFT){
-            throw  new RuntimeException("Only DRAFT policies can be submitted");
+            throw new InvalidPolicyStateException(
+                    "Only DRAFT policies can be submitted"
+            );
         }
         policy.setStatus(PolicyStatus.PENDING_APPROVAL);
         Policy submittedPolicy = policyRepository.save(policy);
@@ -70,7 +74,9 @@ public class PolicyServiceImpl implements PolicyService {
     public PolicyResponse approvePolicy(Long id) {
         Policy policy = getPolicyByIdOrThrow(id);
         if(policy.getStatus() != PolicyStatus.PENDING_APPROVAL){
-            throw  new RuntimeException("Only PENDING_APPROVAL policies can be approved");
+            throw new InvalidPolicyStateException(
+                    "Only PENDING_APPROVAL policies can be approved"
+            );
         }
         policy.setStatus(PolicyStatus.APPROVED);
         Policy approvedPolicy = policyRepository.save(policy);
@@ -86,7 +92,9 @@ public class PolicyServiceImpl implements PolicyService {
 
         Policy policy = getPolicyByIdOrThrow(id);
         if (policy.getStatus() != PolicyStatus.PENDING_APPROVAL) {
-            throw new RuntimeException("Only PENDING_APPROVAL policies can be rejected.");
+            throw new InvalidPolicyStateException(
+                    "Only PENDING_APPROVAL policies can be approved"
+            );
         }
         policy.setStatus(PolicyStatus.REJECTED);
         Policy rejectedPolicy = policyRepository.save(policy);
@@ -102,7 +110,9 @@ public class PolicyServiceImpl implements PolicyService {
     private Policy getPolicyByIdOrThrow(Long id) {
 
         return policyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Policy not found with id: " + id));
+                .orElseThrow(() ->  new PolicyNotFoundException(
+                        "Policy not found with id: " + id
+                ));
     }
 
     // Helper method to publish policy event

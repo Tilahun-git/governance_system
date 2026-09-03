@@ -1,5 +1,6 @@
 package com.internship.governanceservice.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.internship.governanceservice.enums.PolicyStatus;
 import lombok.*;
 
@@ -22,5 +23,6 @@ public class PolicyResponse {
 
     private String createdBy;
 
+    @JsonFormat(pattern = "dd MMMM yyyy, hh:mm a")
     private LocalDateTime createdAt;
 }

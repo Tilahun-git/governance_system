@@ -19,7 +19,7 @@ public class PolicyEventConsumerKafka {
     @KafkaListener(topics = KafkaTopics.POLICY_EVENTS_TOPIC)
     public void consume(PolicyEvent event){
 
-        logger.info("Received policy event: {}", event);
+        logger.info("Received policy event is : {}", event);
         logger.info("Processing policy event. policyId={}, eventType={}, performedBy={}",
                 event.getPolicyId(),
                 event.getEventType(),
@@ -32,7 +32,7 @@ public class PolicyEventConsumerKafka {
         auditLogService.saveAudit(event);
 
         logger.info(
-                "Policy event successfully saved as audit record: eventId={}",
+                "Policy event successfully saved as audit record log : eventId={}",
                 event.getPolicyId()
         );
 
