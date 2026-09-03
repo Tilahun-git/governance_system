@@ -15,9 +15,7 @@ public class GlobalExceptionHandler {
                 "Policy Not Found",
                 ex.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(error);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(InvalidPolicyStateException.class)
@@ -28,8 +26,6 @@ public class GlobalExceptionHandler {
                 "Invalid Policy State",
                 ex.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
